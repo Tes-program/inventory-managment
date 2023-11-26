@@ -7,6 +7,9 @@ import CustomerRouter from './routes/customerRoutes';
 import OrderRouter from './routes/orderRoutes';
 import SupplierRouter from './routes/suppliersRoutes';
 import TransactionRouter from './routes/transactionRoutes';
+import AdjustmentRouter from './routes/adjustmentsRoutes';
+import ReturnRouter from './routes/returnRoutes';
+import RefundRouter from './routes/refundRoutes';
 import { protect } from './modules/auth';
 
 dotenv.config();
@@ -22,6 +25,9 @@ app.use("/customers", protect, CustomerRouter)
 app.use("/orders", protect, OrderRouter)
 app.use("/suppliers", protect, SupplierRouter)
 app.use("/transactions", protect, TransactionRouter)
+app.use("/adjustments", protect, AdjustmentRouter)
+app.use("/returns", protect, ReturnRouter)
+app.use("/refunds", protect, RefundRouter)
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
