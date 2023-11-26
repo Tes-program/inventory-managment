@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Prisma schema for the Supplier table
+model Supplier {
+  SupplierID          Int                   @id @default(autoincrement())
+  SupplierName        String
+  ContactInfo         String
+  Product             Product[]
+  SupplierTransaction SupplierTransaction[]
+}
+
+// Prisma schema for the Product table
+model Product {
+  ProductID            Int                    @id @default(autoincrement())
+  Name                 String
+  Description          String
+  Price                Float
+  ExpirationDate       DateTime
+  ShelfLife            Int
+  StockQuantity        Int
+  SupplierID           Int
+  Supplier             Supplier               @relation(fields: [SupplierID], references: [SupplierID])
+  OrderItem            OrderItem[]
+  PriceAdjustment      PriceAdjustment[]
+  StockAdjustment      StockAdjustment[]
+  InventoryTransaction InventoryTransaction[]
+  TransactionHistory   TransactionHistory[]
+  SupplierTransaction  SupplierTransaction[]
+}
+
+// Prisma schema for the Customer table
+model Customer {
+  CustomerID  Int     @id @default(autoincrement())
+  FirstName   String
+  LastName    String
+  ContactInfo String
+  Order       Order[]
+}
+
+// Prisma schema for the Order table
+model Order {
+  OrderID           Int                 @id @default(autoincrement())
+  CustomerID        Int
+  OrderDate         DateTime
+  TotalAmount       Float
+  Customer          Customer            @relation(fields: [CustomerID], references: [CustomerID])
+  OrderItem         OrderItem[]
+  ReturnTransaction ReturnTransaction[]
+}
+
+// Prisma schema for the OrderItem table
+model OrderItem {
+  OrderItemID Int     @id @default(autoincrement())
+  OrderID     Int
+  ProductID   Int
+  Quantity    Int
+  UnitPrice   Float
+  Subtotal    Float
+  Order       Order   @relation(fields: [OrderID], references: [OrderID])
+  Product     Product @relation(fields: [ProductID], references: [ProductID])
+}
+
+// Prisma schema for the ReturnTransaction table
+model ReturnTransaction {
+  ReturnID          Int                 @id @default(autoincrement())
+  OrderID           Int
+  ReturnDate        DateTime
+  Reason            String
+  Order             Order               @relation(fields: [OrderID], references: [OrderID])
+  RefundTransaction RefundTransaction[]
+}
+
+enum TransactionTypeEnum {
+  Purchase
+  Return
+  Delivery
+  Sale
+  None
+}
+
+// Prisma schema for the RefundTransaction table
+model RefundTransaction {
+  RefundID     Int               @id @default(autoincrement())
+  ReturnID     Int
+  RefundAmount Float
+  RefundDate   DateTime
+  Return       ReturnTransaction @relation(fields: [ReturnID], references: [ReturnID])
+}
+
+// Prisma schema for the InventoryTransaction table
+model InventoryTransaction {
+  TransactionID   Int      @id @default(autoincrement())
+  ProductID       Int
+  TransactionDate DateTime
+  TransactionType TransactionTypeEnum   @default(Sale)
+  QuantityChange  Int
+  Product         Product  @relation(fields: [ProductID], references: [ProductID])
+}
+
+// Prisma schema for the SupplierTransaction table
+model SupplierTransaction {
+  SupplierTransactionID Int      @id @default(autoincrement())
+  SupplierID            Int
+  ProductID             Int
+  TransactionDate       DateTime
+  TransactionType       TransactionTypeEnum   @default(None)
+  QuantityChange        Int
+  Supplier              Supplier @relation(fields: [SupplierID], references: [SupplierID])
+  Product               Product  @relation(fields: [ProductID], references: [ProductID])
+}
+
+// Prisma schema for the PriceAdjustment table
+model PriceAdjustment {
+  AdjustmentID   Int      @id @default(autoincrement())
+  ProductID      Int
+  OldPrice       Float
+  NewPrice       Float
+  AdjustmentDate DateTime
+  Product        Product  @relation(fields: [ProductID], references: [ProductID])
+}
+
+// Prisma schema for the StockAdjustment table
+model StockAdjustment {
+  AdjustmentID   Int      @id @default(autoincrement())
+  ProductID      Int
+  OldQuantity    Int
+  NewQuantity    Int
+  AdjustmentDate DateTime
+  Product        Product  @relation(fields: [ProductID], references: [ProductID])
+}
+
+model TransactionHistory {
+  TransactionID   Int      @id @default(autoincrement())
+  ProductID       Int
+  TransactionDate DateTime
+  TransactionType String
+  QuantityChange  Int
+  Product         Product  @relation(fields: [ProductID], references: [ProductID])
+}
+
+// Prisma schema for the User table
+model User {
+  UserID   Int    @id @default(autoincrement())
+  UserName String @unique
+  Password String
+}
