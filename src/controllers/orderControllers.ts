@@ -4,14 +4,18 @@ import httpStatus from "http-status";
 // Get all orders and paginate them
 export const getAllOrders = async (req, res, next) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
         const orders = await prisma.order.findMany({
-            skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
-            take: req.query.take ? parseInt(req.query.take as string) : 10,
+            skip: (page - 1) * pageSize,
+            take: pageSize,
         });
-        return res.json({ status: httpStatus.DONE ,orders });
+        const total = await prisma.order.count();
+        return res.json({ orders, total, page, pageSize, status: httpStatus.OK });
     } catch (e) {
+        console.log(e);
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
-    }
+}
 }
 
 // Get order by id
@@ -22,7 +26,7 @@ export const getOrderById = async (req, res, next) => {
                 OrderID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, order });
+        return res.json({ status: httpStatus.OK, order });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -56,7 +60,7 @@ export const getOrderHistory = async (req, res, next) => {
             }
         });
         const orders = customer.Order;
-        return res.json({ status: httpStatus.DONE, orders });
+        return res.json({ status: httpStatus.OK, orders });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -74,7 +78,7 @@ export const getOrderItems = async (req, res, next) => {
             }
         });
         const orderItems = order.OrderItem;
-        return res.json({ status: httpStatus.DONE, orderItems });
+        return res.json({ status: httpStatus.OK, orderItems });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -111,7 +115,7 @@ export const editOrder = async (req, res, next) => {
                 TotalAmount: req.body.TotalAmount as number,
             }
         });
-        return res.json({ status: httpStatus.DONE, order });
+        return res.json({ status: httpStatus.OK, order });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }

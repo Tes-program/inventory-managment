@@ -5,14 +5,18 @@ import httpStatus from "http-status";
 
 export const getAllAdjustments = async (req, res, next) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
         const adjustments = await prisma.priceAdjustment.findMany({
-            skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
-            take: req.query.take ? parseInt(req.query.take as string) : 10,
+            skip: (page - 1) * pageSize,
+            take: pageSize,
         });
-        return res.json({ status: httpStatus.DONE ,adjustments });
+        const total = await prisma.priceAdjustment.count();
+        return res.json({ adjustments, total, page, pageSize, status: httpStatus.OK });
     } catch (e) {
+        console.log(e);
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
-    }
+}
 }
 
 // Get all stock adjustments and paginate them
@@ -22,7 +26,7 @@ export const getStockAdjustments = async (req, res, next) => {
             skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
             take: req.query.take ? parseInt(req.query.take as string) : 10,
         });
-        return res.json({ status: httpStatus.DONE ,adjustments });
+        return res.json({ status: httpStatus.OK ,adjustments });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -36,7 +40,7 @@ export const getAdjustmentById = async (req, res, next) => {
                 AdjustmentID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, adjustment });
+        return res.json({ status: httpStatus.OK, adjustment });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -84,7 +88,7 @@ export const getStockAdjustmentsByProductId = async (req, res, next) => {
                 ProductID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, adjustments });
+        return res.json({ status: httpStatus.OK, adjustments });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }

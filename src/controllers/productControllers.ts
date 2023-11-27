@@ -9,7 +9,7 @@ export const getAllProducts = async (req, res, next) => {
             skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
             take: req.query.take ? parseInt(req.query.take as string) : 10,
         });
-        return res.json({ status: httpStatus.DONE ,products });
+        return res.json({ status: httpStatus.OK ,products });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -22,7 +22,7 @@ export const getProductById = async (req, res, next) => {
                 ProductID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, product });
+        return res.json({ status: httpStatus.OK, product });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -61,7 +61,7 @@ export const getProductTransactionHistory = async (req, res, next) => {
             },
         });
         const transactions = product.InventoryTransaction;
-        return res.json({ status: httpStatus.DONE, transactions });
+        return res.json({ status: httpStatus.OK, transactions });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -80,7 +80,7 @@ export const getProductPriceAdjustmentHistory = async (req, res, next) => {
             },
         });
         const priceAdjustments = product.PriceAdjustment;
-        return res.json({ status: httpStatus.DONE, priceAdjustments });
+        return res.json({ status: httpStatus.OK, priceAdjustments });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -104,7 +104,7 @@ export const updateProduct = async (req, res, next) => {
                 SupplierID: req.body.SupplierID as number,
             },
         });
-        return res.json({ status: httpStatus.DONE, product });
+        return res.json({ status: httpStatus.OK, product });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -118,7 +118,7 @@ export const deleteProduct = async (req, res, next) => {
                 ProductID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, product });
+        return res.json({ status: httpStatus.OK, product });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }

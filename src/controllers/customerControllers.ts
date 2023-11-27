@@ -5,12 +5,16 @@ import httpStatus from "http-status";
 // Get all customers and paginate them
 export const getAllCustomers = async (req, res, next) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
         const customers = await prisma.customer.findMany({
-            skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
-            take: req.query.take ? parseInt(req.query.take as string) : 10,
+            skip: (page - 1) * pageSize,
+            take: pageSize,
         });
-        return res.json({ status: httpStatus.DONE ,customers });
+        const total = await prisma.customer.count();
+        return res.json({ customers, total, page, pageSize, status: httpStatus.OK });
     } catch (e) {
+        console.log(e);
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
 }
@@ -23,7 +27,7 @@ export const getCustomerById = async (req, res, next) => {
                 CustomerID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, customer });
+        return res.json({ status: httpStatus.OK, customer });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -57,7 +61,7 @@ export const getCustomerOrderHistory = async (req, res, next) => {
             }
         });
         const orders = customer.Order;
-        return res.json({ status: httpStatus.DONE, orders });
+        return res.json({ status: httpStatus.OK, orders });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }

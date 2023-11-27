@@ -4,12 +4,16 @@ import httpStatus from "http-status";
 // Get all suppliers and paginate them
 export const getAllSuppliers = async (req, res, next) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = parseInt(req.query.pageSize) || 10;
         const suppliers = await prisma.supplier.findMany({
-            skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
-            take: req.query.take ? parseInt(req.query.take as string) : 10,
+            skip: (page - 1) * pageSize,
+            take: pageSize,
         });
-        return res.json({ status: httpStatus.DONE ,suppliers });
+        const total = await prisma.supplier.count();
+        return res.json({ suppliers, total, page, pageSize, status: httpStatus.OK });
     } catch (e) {
+        console.log(e);
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
 }
@@ -22,7 +26,7 @@ export const getSupplierById = async (req, res, next) => {
                 SupplierID: parseInt(req.params.id),
             },
         });
-        return res.json({ status: httpStatus.DONE, supplier });
+        return res.json({ status: httpStatus.OK, supplier });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
@@ -55,7 +59,7 @@ export const getSupplierTransactions = async (req, res, next) => {
             }
         });
         const transactions = supplier.SupplierTransaction;
-        return res.json({ status: httpStatus.DONE, transactions });
+        return res.json({ status: httpStatus.OK, transactions });
     } catch (e) {
         return res.json({ message: e.message, status: httpStatus.BAD_REQUEST });
     }
